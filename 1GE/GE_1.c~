@@ -3,6 +3,7 @@
 #include<stdlib.h>
 #include<stdio.h>
 #include<math.h>
+#include<time.h>
 
 void forward_Elimination(int n,float **A,float *X);
 void back_substitution(int n,float **A,float *X);
@@ -11,11 +12,15 @@ int main()
 {
         float **A,*X,**orig_mat,*approx_res,*error;
         int i,j,n;
+	clock_t start, end;
+   	double total_time;
 	FILE *input_ptr,*output_ptr;
 	//input_ptr = fopen("in_10*10.txt","r");
         //output_ptr = fopen("out_10*10.txt","w");
-	input_ptr = fopen("in_Hilbert_matrix_10*10.txt","r");
-        output_ptr = fopen("out_Hilbert_matrix_10*10txt","w");
+	input_ptr = fopen("in_random_matrix_1000*1000.txt","r");
+        output_ptr = fopen("out_random_matrix_1000*1000.txt","w");
+	//input_ptr = fopen("in_Hilbert_matrix_5*5.txt","r");
+        //output_ptr = fopen("out_Hilbert_matrix_5*5.txt","w");
         if(input_ptr==NULL) exit(1);
 	fprintf(output_ptr,"\n\n*Welcome in Gauss Elimination method using partial_pivoting  to solve equations of form A.X = B\n\n");
 /////////////////////Input the Order of Matrix//////////////////////////////////////////////////////
@@ -60,7 +65,8 @@ int main()
         	fprintf(output_ptr,"\n\n");
     	}
 ////////////////////////////////////////generation of scalar matrix//////////////////////////////
-        forward_Elimination(n,A,X);
+	start = clock();        
+	forward_Elimination(n,A,X);
 /////////////////////////Augmented form of the matrix///////////////////////////////
 	fprintf(output_ptr,"\n\n*The Augmented form of the matrix is :\n");
         for(i=0;i<n;i++)
@@ -73,6 +79,7 @@ int main()
         }
 /////////////////////////////////backward substitution Method///////////////////////////////
         back_substitution(n,A,X);
+	end = clock();
 ////////////////////////////////display the solution of Equations///////////////////////////////
         fprintf(output_ptr,"\n\n*The solution of above equations are :\n\n");
         for(i=0;i<n;i++)
@@ -99,6 +106,9 @@ int main()
 		error[i] = ((orig_mat[i][n] - approx_res[i])/(orig_mat[i][n]))*100;
 		fprintf(output_ptr,"%d.(%lf) - (%lf) = %-.2le\n",i+1,orig_mat[i][n],approx_res[i], fabs(error[i]));
 	}
+	/*Display Execution time */
+	total_time = ((double)(end-start))/(CLOCKS_PER_SEC);
+	fprintf(output_ptr,"\n\nTotal Execution time = %f sec\n",total_time);
 ////////////////////////////////free allocated memory////////////////////////////////////////
         for(i = 0; i < n; i++)
         {
@@ -144,7 +154,7 @@ void forward_Elimination(int n,float **A,float *X)
             for(j=i+1;j<n;j++)
 	    {
                 mult = A[j][i]/A[i][i];
-                for(k=0;k<=n;k++)
+                for(k=i;k<=n;k++)
 		{		
                     A[j][k] = A[j][k] - mult * A[i][k];
         	}    
